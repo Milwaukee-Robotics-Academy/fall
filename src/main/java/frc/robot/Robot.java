@@ -34,9 +34,11 @@ public class Robot extends TimedRobot {
 // TODO: Add the left group of motor controllers
   
   // private AHRS ahrs = new AHRS(SPI.Port.kMXP);
-  private XboxController controller = new XboxController(1);
+  private AHRS ahrs = new AHRS(SPI.Port.kMXP);
+  private XboxController controller = new XboxController(0);
 
-  private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
+//TODO: Implement "private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);"
+
 
   private Timer autoTimer = new Timer();
   {
@@ -111,7 +113,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
    
-    drive.arcadeDrive(controller.getRightTriggerAxis() - controller.getLeftTriggerAxis(), controller.getLeftX());
+    // TODO:  use drive.arcadeDrive( <value for forward/back> , <value to turn>);
 
     
   }
