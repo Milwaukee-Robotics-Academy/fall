@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+import edu.wpi.first.wpilibj.SPI;
+import com.kauailabs.navx.frc.AHRS;
 
 // import com.kauailabs.navx.frc.*;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -28,20 +27,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
   private Victor frontRight = new Victor(0);
-  private Victor frontLeft = new Victor(1);
-  private Victor rearRight = new Victor(3);
-  private Victor rearLeft = new Victor(2);
-  private Victor conveyor = new Victor(4);
+  private Victor rearRight = new Victor(1);
+  private Victor frontLeft = new Victor(2);
+  private Victor rearLeft = new Victor(3);
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
   private MotorControllerGroup leftGroup = new MotorControllerGroup(frontLeft, rearLeft);
-  // private AHRS ahrs = new AHRS(SPI.Port.kMXP);
-  private XboxController controller = new XboxController(1);
+  private AHRS ahrs = new AHRS(SPI.Port.kMXP);
+  private XboxController controller = new XboxController(0);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
 
   private Timer autoTimer = new Timer();
@@ -56,12 +51,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-    leftGroup.setInverted(false);
+
     rightGroup.setInverted(true);
-    // ahrs.reset();
+    ahrs.reset();
   }
 
   /**
@@ -98,9 +90,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+
     autoTimer.reset();
     autoTimer.start();
     // ahrs.reset();
@@ -109,52 +99,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // System.out.println("Gyro Angle: " + ahrs.getAngle());
-    // if(autoTimer.get() < 2) {
-    //   if(ahrs.getAngle() > 0.0){
-    //     drive.tankDrive(0.5,0.7);
-    //   } else if (ahrs.getAngle()<0.0) {
-    //     drive.tankDrive(0.7,0.5);
-    //   } else {
-    //     drive.tankDrive(0.5,0.5);
-    //   }
-    // } else if (autoTimer.get() <2.7){
-    //   drive.tankDrive(-0.5,0.5);
-    // } else if(autoTimer.get() < 4.7) {
-    //     if(ahrs.getAngle() > -90.0){
-    //       drive.tankDrive(0.5,0.7);
-    //     } else if (ahrs.getAngle()< -90.0) {
-    //       drive.tankDrive(0.7,0.5);
-    //     } else {
-    //       drive.tankDrive(0.5,0.5);
-    //     }
-    //   } else if (autoTimer.get() < 5.4) {
-    //     drive.tankDrive(-0.5,0.5);
-        
-    //   }  else if(autoTimer.get() < 7.4) {
-    //       if(ahrs.getAngle() > -180.0){
-    //         drive.tankDrive(0.5,0.7);
-    //       } else if (ahrs.getAngle()< -180.0) {
-    //         drive.tankDrive(0.7,0.5);
-    //       } else {
-    //         drive.tankDrive(0.5,0.5);
-    //       }
-    //     } else if (autoTimer.get() < 8.1) {
-    //       drive.tankDrive(-0.5,0.5);
-          
-    //     }  else if(autoTimer.get() < 10.1) {
-    //         if(ahrs.getAngle() > -270.0){
-    //           drive.tankDrive(0.5,0.7);
-    //         } else if (ahrs.getAngle()<-270.0) {
-    //           drive.tankDrive(0.7,0.5);
-    //         } else {
-    //           drive.tankDrive(0.5,0.5);
-    //         }
-    //  //} else if(autoTimer.get() > 2.5 < 3) {
-    //  // drive.arcadeDrive(.5,1);
-    // } else {
-    //   drive.tankDrive(0,0);
-    // }
+
   }
   
 
@@ -169,17 +114,6 @@ public class Robot extends TimedRobot {
    
     drive.arcadeDrive(controller.getRightTriggerAxis() - controller.getLeftTriggerAxis(), controller.getLeftX());
 
-    if(controller.getAButton())
-    {
-      conveyor.set(0.5);
-    }
-    else if(controller.getBButton())
-    {
-      conveyor.set(-0.5);
-    }
-    else{
-      conveyor.set(0);
-    }
     
   }
 
