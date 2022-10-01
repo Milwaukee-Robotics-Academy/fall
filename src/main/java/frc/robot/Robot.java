@@ -33,13 +33,12 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Victor frontRight = new Victor(0);
-  private Victor frontLeft = new Victor(1);
-  private Victor rearRight = new Victor(3);
-  private Victor rearLeft = new Victor(2);
-  private Victor conveyor = new Victor(4);
+  private Victor rearRight = new Victor(1);
+// TODO: add all the drivetrain controllers 
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
-  private MotorControllerGroup leftGroup = new MotorControllerGroup(frontLeft, rearLeft);
+// TODO: Add the left group of motor controllers
+  
   // private AHRS ahrs = new AHRS(SPI.Port.kMXP);
   private XboxController controller = new XboxController(1);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
