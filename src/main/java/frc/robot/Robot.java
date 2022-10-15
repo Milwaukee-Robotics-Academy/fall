@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
 
@@ -33,9 +35,10 @@ public class Robot extends TimedRobot {
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
   private MotorControllerGroup leftGroup = new MotorControllerGroup(frontLeft, rearLeft);
-  private AHRS ahrs = new AHRS(SPI.Port.kMXP);
+  private AHRS ahrs;
   private XboxController controller = new XboxController(0);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
+  
 
   private Timer autoTimer = new Timer();
   {
@@ -51,7 +54,18 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     rightGroup.setInverted(true);
-    ahrs.reset();
+
+
+    /**
+     * Setting up a PID controller to support turn-to-angle
+     */
+  try{
+    ahrs = new AHRS(SPI.Port.kMXP); 
+  } catch (RuntimeException ex ) {
+      DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
+  }
+  ahrs.reset();
+
   }
 
   /**
@@ -97,6 +111,13 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    if (autoTimer.get()<2.0)
+    {
+      this.driveStraight(0.5, 0);
+    }
+  if (autoTimer.get()>2.0 && autoTimer.get()<4.0) {
+      turn(90);
+  }
 
   }
   
@@ -115,6 +136,26 @@ public class Robot extends TimedRobot {
     
   }
 
+  void driveStraight(double speed, double desiredAngle) {
+    double error = (desiredAngle - ahrs.getAngle())/180;
+
+    if (error > 0) {
+      drive.tankDrive(speed-error, speed+error);
+    } else if (error < 0) {
+      drive.tankDrive(speed+error, speed-error);
+    } else {
+      drive.tankDrive(speed, speed);
+    }
+  }
+  void turn(double desiredAngle) {
+    double error = (desiredAngle - ahrs.getAngle())/180;
+
+    if (error != 0) {
+      drive.tankDrive(error, -error);
+    } else {
+      drive.tankDrive(0,0);
+    }
+  }
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
