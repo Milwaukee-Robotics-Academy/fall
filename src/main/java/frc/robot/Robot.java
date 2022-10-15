@@ -38,7 +38,8 @@ public class Robot extends TimedRobot {
   private AHRS ahrs;
   private XboxController controller = new XboxController(0);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
-  private double kP = 1.0;
+  private static final double kP = 0.011; // propotional turning constant
+
   
 
   private Timer autoTimer = new Timer();
@@ -112,9 +113,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (autoTimer.get()<3.0)
+    if (autoTimer.get()<2.0)
     {
       this.driveStraight(0.6, 0);
+    } else if (autoTimer.get()>2.0 && autoTimer.get()<4.0) {
+      this.turn(90);
     } else {
       drive.tankDrive(0, 0);
     }
@@ -157,10 +160,12 @@ public class Robot extends TimedRobot {
     }
   }
   void turn(double desiredAngle) {
-    double error = (desiredAngle - ahrs.getAngle())/180;
+    double turn = (desiredAngle - ahrs.getAngle()) * kP;
+    System.out.println("Turn:" + turn);
+    System.out.print("angle:"+ahrs.getAngle());
 
-    if (error != 0) {
-      drive.tankDrive(error, -error);
+    if (turn != 0) {
+      drive.tankDrive(turn, -turn);
     } else {
       drive.tankDrive(0,0);
     }
