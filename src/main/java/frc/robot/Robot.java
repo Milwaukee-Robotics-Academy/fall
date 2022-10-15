@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
   private AHRS ahrs;
   private XboxController controller = new XboxController(0);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
+  private double kP = 1.0;
   
 
   private Timer autoTimer = new Timer();
@@ -105,20 +106,18 @@ public class Robot extends TimedRobot {
 
     autoTimer.reset();
     autoTimer.start();
-    // ahrs.reset();
+    ahrs.reset();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (autoTimer.get()<2.0)
+    if (autoTimer.get()<3.0)
     {
-      this.driveStraight(0.5, 0);
+      this.driveStraight(0.6, 0);
+    } else {
+      drive.tankDrive(0, 0);
     }
-  if (autoTimer.get()>2.0 && autoTimer.get()<4.0) {
-      turn(90);
-  }
-
   }
   
 
@@ -137,14 +136,24 @@ public class Robot extends TimedRobot {
   }
 
   void driveStraight(double speed, double desiredAngle) {
-    double error = (desiredAngle - ahrs.getAngle())/180;
+    double error = (desiredAngle - ahrs.getAngle());
 
-    if (error > 0) {
-      drive.tankDrive(speed-error, speed+error);
-    } else if (error < 0) {
-      drive.tankDrive(speed+error, speed-error);
+    System.out.println("Error:" + error);
+    System.out.print("angle:"+ahrs.getAngle());
+
+    
+    if (error > 2) {
+      drive.tankDrive(speed+.05, speed-.05);
+      System.out.print("| Left:"+ (speed+.05));
+      System.out.println("| Right:"+ (speed-.05));
+    } else if (error < 2) {
+      drive.tankDrive(speed-.05, speed+.05);
+      System.out.print("| Left:"+ (speed-.05));
+      System.out.println("| Right:"+ (speed+.05));
     } else {
       drive.tankDrive(speed, speed);
+      System.out.print("| Left:"+ (speed));
+      System.out.println("| Right:"+ (speed));
     }
   }
   void turn(double desiredAngle) {
