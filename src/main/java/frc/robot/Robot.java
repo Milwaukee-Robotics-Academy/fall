@@ -27,23 +27,27 @@ import edu.wpi.first.wpilibj.motorcontrol.Victor;
 public class Robot extends TimedRobot {
 
   private Victor frontRight = new Victor(0);
-  private Victor rearRight = new Victor(1);
+  private Victor rearRight = new Victor(3);
+  
 // TODO: add all the drivetrain controllers 
+
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
 // TODO: Add the left group of motor controllers
-  
+private Victor frontleft = new Victor(1);
+private Victor rearleft = new Victor(2);
+private MotorControllerGroup leftGroup = new MotorControllerGroup(frontleft, rearleft);
   // private AHRS ahrs = new AHRS(SPI.Port.kMXP);
   private AHRS ahrs = new AHRS(SPI.Port.kMXP);
   private XboxController controller = new XboxController(0);
 
 //TODO: Implement "private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);"
-
+private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
 
   private Timer autoTimer = new Timer();
-  {
+  // {
 
-  }
+  // }
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -101,7 +105,14 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
 
-  }
+    if (autoTimer.get()>1.0 && autoTimer.get()<2.0)
+      {
+        drive.arcadeDrive(-0.75, 0);
+      }
+    if (autoTimer.get()>2.0) {
+      drive.arcadeDrive(0, 0);
+    }
+    }
   
 
   /** This function is called once when teleop is enabled. */
@@ -114,10 +125,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
    
     // TODO:  use drive.arcadeDrive( <value for forward/back> , <value to turn>);
-
-    
+  
+  drive.arcadeDrive( controller.getRightY() , controller.getRightX());
   }
-
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
