@@ -5,6 +5,7 @@
 package frc.robot;
 
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
@@ -39,7 +40,9 @@ public class Robot extends TimedRobot {
   private XboxController controller = new XboxController(0);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
   private static final double kP = 0.011; // propotional turning constant
-
+  private static final double kI = 0.0; // integral turning constant
+  private static final double kD = 0.0; // derivative turning constant
+  private PIDController turnController;
   
 
   private Timer autoTimer = new Timer();
@@ -56,6 +59,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     rightGroup.setInverted(true);
+    turnController = new PIDController(kP, kI, kD);
 
 
     /**
@@ -115,7 +119,8 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     if (autoTimer.get()<2.0)
     {
-      this.driveStraight(0.6, 0);
+    //  this.driveStraight(0.6, 0);
+    this.turn(90);
     } else if (autoTimer.get()>2.0 && autoTimer.get()<4.0) {
       this.turn(90);
     } else {
@@ -160,12 +165,15 @@ public class Robot extends TimedRobot {
     }
   }
   void turn(double desiredAngle) {
+
     double turn = (desiredAngle - ahrs.getAngle()) * kP;
-    System.out.println("Turn:" + turn);
+    // System.out.println("Turn:" + turn);
     System.out.print("angle:"+ahrs.getAngle());
+    System.out.println("TurnPiD:" + turnController.calculate(ahrs.getAngle(), desiredAngle));
 
     if (turn != 0) {
-      drive.tankDrive(turn, -turn);
+      //drive.tankDrive(turn, -turn);
+      drive.tankDrive(turnController.calculate(ahrs.getAngle(), desiredAngle), -turnController.calculate(ahrs.getAngle(), desiredAngle));
     } else {
       drive.tankDrive(0,0);
     }
