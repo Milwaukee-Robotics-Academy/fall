@@ -59,7 +59,17 @@ public class Robot extends TimedRobot {
   public void robotInit() {
 
     rightGroup.setInverted(true);
+
+    /**
+     * Setting up the PID controller to turn the robot
+     * We instantiate the turnController object with the Proportional constant (I and D are not needed, so they are set to 0)
+     * Enable ContinuousInput because the robot can turn past 180 or -180
+     * and we set Tolerance to 2 meaning if the setpoint is 90 degrees, the loop will consider reaching that setpoint with any value
+     * between 88 and 92 degrees
+     */
     turnController = new PIDController(kP, kI, kD);
+    turnController.enableContinuousInput(-180, 180);
+    turnController.setTolerance(2.0);
 
 
     /**
