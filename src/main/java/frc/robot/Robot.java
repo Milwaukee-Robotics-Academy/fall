@@ -7,6 +7,7 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
 
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot {
   private Victor rearRight = new Victor(1);
   private Victor frontLeft = new Victor(2);
   private Victor rearLeft = new Victor(3);
+  private final Encoder m_encoder = new Encoder(0, 1);
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
   private MotorControllerGroup leftGroup = new MotorControllerGroup(frontLeft, rearLeft);
@@ -139,7 +141,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
    
     drive.arcadeDrive(controller.getRightTriggerAxis() - controller.getLeftTriggerAxis(), controller.getLeftX());
-
+    System.out.println(this.getEncoderPosition());
     
   }
 
@@ -178,6 +180,11 @@ public class Robot extends TimedRobot {
       drive.tankDrive(0,0);
     }
   }
+
+  public Double getEncoderPosition() {
+    return m_encoder.getDistance();
+  }
+
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
