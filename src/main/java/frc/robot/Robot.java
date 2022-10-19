@@ -6,10 +6,14 @@ package frc.robot;
 
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 
 // import com.kauailabs.navx.frc.*;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -45,7 +49,23 @@ public class Robot extends TimedRobot {
   private static final double kI = 0.0; // integral turning constant
   private static final double kD = 0.0; // derivative turning constant
   private PIDController turnController;
-  
+
+
+  final double LINEAR_P = 2.0;
+  final double LINEAR_D = 0.0;
+  PIDController forwardController = new PIDController(LINEAR_P, 0, LINEAR_D);
+
+   // 2020 High goal target height above ground
+   public static final double TARGET_HEIGHT_METERS = Units.inchesToMeters(81.19);
+
+   // Constants about how your camera is mounted to the robot
+   public static final double CAMERA_PITCH_RADIANS =
+           Units.degreesToRadians(15); // Angle "up" from horizontal
+   public static final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24); // Height above floor
+
+   // How far from the target we want to be
+   final double GOAL_RANGE_METERS = Units.feetToMeters(10);
+  PhotonCamera camera = new PhotonCamera("photonvision");
 
   private Timer autoTimer = new Timer();
   {
@@ -148,13 +168,45 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-   
-    drive.arcadeDrive(controller.getRightTriggerAxis() - controller.getLeftTriggerAxis(), controller.getLeftX());
-    System.out.println(this.getEncoderPosition());
-    
+  public void teleopPeriodic(){
+  double forwardSpeed;
+  double rotationSpeed;
+
+  if (controller.getAButton()) {
+      // Vision-alignment mode
+      // Query the latest result from PhotonVision
+      var result = camera.getLatestResult();
+
+      if (result.hasTargets()) {
+          // First calculate range
+          double range =
+                  PhotonUtils.calculateDistanceToTargetMeters(
+                          CAMERA_HEIGHT_METERS,
+                          TARGET_HEIGHT_METERS,
+                          CAMERA_PITCH_RADIANS,
+                          Units.degreesToRadians(result.getBestTarget().getPitch()));
+
+          // Use this range as the measurement we give to the PID controller.
+          // -1.0 required to ensure positive PID controller effort _increases_ range
+          forwardSpeed = -forwardController.calculate(range, GOAL_RANGE_METERS);
+
+          // Also calculate angular power
+          // -1.0 required to ensure positive PID controller effort _increases_ yaw
+          rotationSpeed = -turnController.calculate(result.getBestTarget().getYaw(), 0);
+      } else {
+          // If we have no targets, stay still.
+          forwardSpeed = 0;
+          rotationSpeed = 0;
+      }
+  } else {
+      // Manual Driver Mode
+      forwardSpeed = -controller.getRightY();
+      rotationSpeed = controller.getLeftX();
   }
 
+  // Use our forward/turn speeds to control the drivetrain
+  drive.arcadeDrive(forwardSpeed, rotationSpeed);
+}
   void driveStraight(double speed, double desiredAngle) {
     double error = (desiredAngle - ahrs.getAngle());
 
