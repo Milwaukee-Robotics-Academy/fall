@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+
 
 // import com.kauailabs.navx.frc.*;
 import edu.wpi.first.wpilibj.SPI;
@@ -109,6 +109,28 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    if (autoTimer.get() < 0.90) {
+       //Full forward
+      drive.tankDrive(1.0, 1.0);
+    }
+     else if (autoTimer.get() < 1.4) {
+        //Full forward
+        drive.tankDrive(0.50, -0.5);
+      }
+      else if (autoTimer.get() <1.5){
+        drive.tankDrive(-0.1,-0.1);
+      }
+      else if (autoTimer.get() < 2.1) {
+          //Full forward
+          drive.tankDrive(1.00, 1.0);}
+      else if (autoTimer.get() < 2.35) {
+            //Full forward
+            drive.tankDrive(0.50, -0.5);
+          }  
+      
+
+      }
+    
     // System.out.println("Gyro Angle: " + ahrs.getAngle());
     // if(autoTimer.get() < 2) {
     //   if(ahrs.getAngle() > 0.0){
@@ -155,7 +177,7 @@ public class Robot extends TimedRobot {
     // } else {
     //   drive.tankDrive(0,0);
     // }
-  }
+
   
 
   /** This function is called once when teleop is enabled. */
