@@ -111,19 +111,18 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     double time = 0.0;
     double time_var = 1.5;
-    time = driveForward(0.0, 1.0);
-    //time = stop(time, time_var);
-    time = turn(time,90);
-    // time = driveForward(time,0.7);
+    time = driveForward(0.0, 2.0);
+    // time = stop(time, time_var);
+    // time = turn(time,90);
+    // time = driveForward(time,1.7);
     // time = stop(time, time_var);
     // time = turn(time,180 );
-    // time = driveForward(time,0.7);
+    // time = driveForward(time,1.5);
     // time = stop(time, time_var);
     // time = turn(time,270);
-    // time = driveForward(time,0.7);
+    // time = driveForward(time,1.6);
     // time = stop(time, time_var);
-    // time = turn(time,360);
-    // if (autoTimer.get() < 0.90) {
+    //if (autoTimer.get() < 0.90) {
     //   drive.tankDrive(1.0, 1.0);
     // }
     //   else if (autoTimer.get() < 1.45) {
@@ -206,7 +205,7 @@ public class Robot extends TimedRobot {
   public double driveForward(double x, double y) {
     if (autoTimer.get() >= x && autoTimer.get() < x+y)
     {
-    drive.tankDrive(1.0,1.0);
+    drive.tankDrive(0.6,0.6);
     }
     return x+y;
   }
@@ -226,16 +225,19 @@ public class Robot extends TimedRobot {
     double turnspeed = -Math.abs(error)/110;
  //   System.out.println("Target Angle is: " + ahrs.getAngle()+" "+turnspeed);
     if (Math.abs(error) > 40 ){
-      turnspeed = Math.abs(error)/90;
+      turnspeed = 0.7;
       // drive.arcadeDrive(0, turnspeed);
 
     }
       else if (Math.abs(error) > 20){
-        turnspeed = Math.abs(error)/100;
+        turnspeed = 0.4;
       }
       else if (Math.abs(error) > 5){
-        turnspeed = Math.abs(error)/110; 
+        turnspeed = 0.1; 
       }
+    if (error < 0){
+      turnspeed = -turnspeed ; 
+    }
     if (autoTimer.get() >= x && autoTimer.get() < x+y)
     {
       drive.arcadeDrive(0, turnspeed);
