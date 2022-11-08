@@ -5,8 +5,8 @@
 package frc.robot;
 
 
-
-// import com.kauailabs.navx.frc.*;
+import java.lang.Math;
+import com.kauailabs.navx.frc.*;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
 
   private MotorControllerGroup rightGroup = new MotorControllerGroup(frontRight, rearRight);
   private MotorControllerGroup leftGroup = new MotorControllerGroup(frontLeft, rearLeft);
-  // private AHRS ahrs = new AHRS(SPI.Port.kMXP);
+  private AHRS ahrs = new AHRS(SPI.Port.kMXP);
   private XboxController controller = new XboxController(1);
   private DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
 
@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     leftGroup.setInverted(false);
     rightGroup.setInverted(true);
-    // ahrs.reset();
+    ahrs.reset();
   }
 
   /**
@@ -103,33 +103,51 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
     autoTimer.reset();
     autoTimer.start();
-    // ahrs.reset();
+    ahrs.reset();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (autoTimer.get() < 0.90) {
-       //Full forward
-      drive.tankDrive(1.0, 1.0);
-    }
-     else if (autoTimer.get() < 1.4) {
-        //Full forward
-        drive.tankDrive(0.50, -0.5);
-      }
-      else if (autoTimer.get() <1.5){
-        drive.tankDrive(-0.1,-0.1);
-      }
-      else if (autoTimer.get() < 2.1) {
-          //Full forward
-          drive.tankDrive(1.00, 1.0);}
-      else if (autoTimer.get() < 2.35) {
-            //Full forward
-            drive.tankDrive(0.50, -0.5);
-          }  
-      
+    double time = 0.0;
+    double time_var = 1.5;
+    time = driveForward(0.0, 1.0);
+    //time = stop(time, time_var);
+    time = turn(time,90);
+    // time = driveForward(time,0.7);
+    // time = stop(time, time_var);
+    // time = turn(time,180 );
+    // time = driveForward(time,0.7);
+    // time = stop(time, time_var);
+    // time = turn(time,270);
+    // time = driveForward(time,0.7);
+    // time = stop(time, time_var);
+    // time = turn(time,360);
+    // if (autoTimer.get() < 0.90) {
+    //   drive.tankDrive(1.0, 1.0);
+    // }
+    //   else if (autoTimer.get() < 1.45) {
+    //     //Full forward
+    //     drive.tankDrive(0.5, -0.5);
+    //   } 
+    //   else if (autoTimer.get() <2.05) {
+    //      drive.tankDrive(1.00, 1.0);
+    //     }
+            
+    //   else if (autoTimer.get() <2.35) { 
+    //      drive.tankDrive(0.50, -0.50);
+    //     }
+    //   else if (autoTimer.get() < 2.2) {
+    //      drive.tankDrive(1.0,1.0);
+    //       } 
+   }
 
-      }
+      //else if (autoTimer.get() <2.52){
+      //drive.tankDrive(-0.1,-0.1)
+      //}
+
+
+      
     
     // System.out.println("Gyro Angle: " + ahrs.getAngle());
     // if(autoTimer.get() < 2) {
@@ -184,6 +202,55 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
   }
+
+  public double driveForward(double x, double y) {
+    if (autoTimer.get() >= x && autoTimer.get() < x+y)
+    {
+    drive.tankDrive(1.0,1.0);
+    }
+    return x+y;
+  }
+  public double turnRight(double x, double y) {
+    if (autoTimer.get() >= x && autoTimer.get() < x+y)
+    {
+    drive.tankDrive(0.5,-0.5);
+    }
+    return x+y;
+  }
+
+  public double turn(double x, double targetangle) {
+    double y = 2;
+    double error = targetangle - ahrs.getAngle();
+    System.out.println("Degrees left to turn: " + error);
+
+    double turnspeed = -Math.abs(error)/110;
+ //   System.out.println("Target Angle is: " + ahrs.getAngle()+" "+turnspeed);
+    if (Math.abs(error) > 40 ){
+      turnspeed = Math.abs(error)/90;
+      // drive.arcadeDrive(0, turnspeed);
+
+    }
+      else if (Math.abs(error) > 20){
+        turnspeed = Math.abs(error)/100;
+      }
+      else if (Math.abs(error) > 5){
+        turnspeed = Math.abs(error)/110; 
+      }
+    if (autoTimer.get() >= x && autoTimer.get() < x+y)
+    {
+      drive.arcadeDrive(0, turnspeed);
+    //drive.tankDrive(0.5,-0.5);
+    }
+    return x+y;
+  }
+  public double stop(double x, double y) {
+    if (autoTimer.get() >= x && autoTimer.get() < x+y)
+    {
+    drive.tankDrive(0.0,0.0);
+    }
+    return x+y;
+  }
+
 
   /** This function is called periodically during operator control. */
   @Override
